@@ -32,7 +32,12 @@ import {
   lexerWithRecovery,
 } from "./lexer";
 
-import { partialMatch, enclosingFunction } from "./completer";
+import {
+  partialMatch,
+  enclosingFunction,
+  complete,
+  COMPLETION,
+} from "./completer";
 
 import getHelpText from "./helper_text_strings";
 
@@ -57,6 +62,79 @@ for (const type of EXPRESSION_TYPES) {
   OPERATORS_BY_TYPE[type] = Array.from(OPERATORS)
     .filter(name => isExpressionType(MBQL_CLAUSES[name].type, type))
     .map(name => MBQL_CLAUSES[name]);
+}
+
+function lexicalSuggestions(startRule, query, source, targetOffset) {
+  const suggestions = [];
+  const completions = complete(startRule, source, targetOffset);
+  completions.forEach(completion => {
+    const prefix = completion.match.toLocaleLowerCase();
+    if (completion.type === COMPLETION.Field) {
+      const dimensions = query.dimensionOptions(() => true).all();
+      suggestions.push(
+        ...dimensions
+          .map(dimension => ({
+            type: "fields",
+            name: getDimensionName(dimension),
+            text: formatDimensionName(dimension) + " ",
+            alternates: EDITOR_FK_SYMBOLS.symbols.map(symbol =>
+              getDimensionName(dimension, symbol),
+            ),
+            prefixTrim: /^(\w|\.)+\s*/,
+            postfixTrim: /(\w|\.)+$/,
+          }))
+          .filter(entry => entry.name.toLowerCase().startsWith(prefix)),
+      );
+    } else if (completion.type === COMPLETION.Segment) {
+      suggestions.push(
+        ...query
+          .table()
+          .segments.map(segment => ({
+            type: "segments",
+            name: segment.name,
+            text: formatSegmentName(segment),
+            prefixTrim: /^(\w|\.)+\s*/,
+            postfixTrim: /(\w|\.)+$/,
+          }))
+          .filter(entry => entry.name.toLowerCase().startsWith(prefix)),
+      );
+    } else if (completion.type === COMPLETION.FilterFunction) {
+      const functions = [
+        "between",
+        "contains",
+        "endsWith",
+        "interval",
+        "isempty",
+        "isnull",
+        "startsWith",
+      ];
+      suggestions.push(
+        ...functions
+          .map(name => ({
+            type: "functions",
+            name,
+            text: name + "(",
+            prefixTrim: /^(\w|\.)+\s*/,
+            postfixTrim: /(\w|\.)+$/,
+          }))
+          .filter(entry => entry.name.toLowerCase().startsWith(prefix)),
+      );
+    } else if (completion.type === COMPLETION.Case) {
+      const functions = ["case"];
+      suggestions.push(
+        ...functions
+          .map(name => ({
+            type: "functions",
+            name,
+            text: name + "(",
+            prefixTrim: /^(\w|\.)+\s*/,
+            postfixTrim: /(\w|\.)+$/,
+          }))
+          .filter(entry => entry.name.toLowerCase().startsWith(prefix)),
+      );
+    }
+  });
+  return suggestions;
 }
 
 export function suggest({
@@ -100,13 +178,17 @@ export function suggest({
 
   const { expectedType } = context;
 
-  let finalSuggestions = [];
-
-  const syntacticSuggestions = parserWithRecovery.computeContentAssist(
+  let finalSuggestions = lexicalSuggestions(
     startRule,
-    tokenVector,
+    query,
+    source,
+    targetOffset,
   );
 
+  const syntacticSuggestions =
+    startRule === "boolean"
+      ? []
+      : parserWithRecovery.computeContentAssist(startRule, tokenVector);
   for (const suggestion of syntacticSuggestions) {
     const { nextTokenType, ruleStack } = suggestion;
 
