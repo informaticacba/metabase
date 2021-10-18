@@ -89,31 +89,19 @@ function lexicalSuggestions(startRule, query, source, targetOffset) {
         })),
       );
     } else if (completion.type === COMPLETION.FilterFunction) {
-      const functions = [
-        "between",
-        "contains",
-        "endsWith",
-        "interval",
-        "isempty",
-        "isnull",
-        "startsWith",
-      ];
       suggestions.push(
-        ...functions.map(name => ({
+        ...FUNCTIONS_BY_TYPE["boolean"].map(func => ({
           type: "functions",
-          name,
-          text: name + "(",
+          name: func.displayName,
+          text: func.displayName + "(",
         })),
       );
     } else if (completion.type === COMPLETION.Case) {
-      const functions = ["case"];
-      suggestions.push(
-        ...functions.map(name => ({
-          type: "functions",
-          name,
-          text: name + "(",
-        })),
-      );
+      suggestions.push({
+        type: "functions",
+        name: "case",
+        text: "case(",
+      });
     }
   });
   return suggestions;
