@@ -68,35 +68,25 @@ function lexicalSuggestions(startRule, query, source, targetOffset) {
   const suggestions = [];
   const completions = complete(startRule, source, targetOffset);
   completions.forEach(completion => {
-    const prefix = completion.match.toLocaleLowerCase();
     if (completion.type === COMPLETION.Field) {
       const dimensions = query.dimensionOptions(() => true).all();
       suggestions.push(
-        ...dimensions
-          .map(dimension => ({
-            type: "fields",
-            name: getDimensionName(dimension),
-            text: formatDimensionName(dimension) + " ",
-            alternates: EDITOR_FK_SYMBOLS.symbols.map(symbol =>
-              getDimensionName(dimension, symbol),
-            ),
-            prefixTrim: /^(\w|\.)+\s*/,
-            postfixTrim: /(\w|\.)+$/,
-          }))
-          .filter(entry => entry.name.toLowerCase().startsWith(prefix)),
+        ...dimensions.map(dimension => ({
+          type: "fields",
+          name: getDimensionName(dimension),
+          text: formatDimensionName(dimension) + " ",
+          alternates: EDITOR_FK_SYMBOLS.symbols.map(symbol =>
+            getDimensionName(dimension, symbol),
+          ),
+        })),
       );
     } else if (completion.type === COMPLETION.Segment) {
       suggestions.push(
-        ...query
-          .table()
-          .segments.map(segment => ({
-            type: "segments",
-            name: segment.name,
-            text: formatSegmentName(segment),
-            prefixTrim: /^(\w|\.)+\s*/,
-            postfixTrim: /(\w|\.)+$/,
-          }))
-          .filter(entry => entry.name.toLowerCase().startsWith(prefix)),
+        ...query.table().segments.map(segment => ({
+          type: "segments",
+          name: segment.name,
+          text: formatSegmentName(segment),
+        })),
       );
     } else if (completion.type === COMPLETION.FilterFunction) {
       const functions = [
@@ -109,28 +99,20 @@ function lexicalSuggestions(startRule, query, source, targetOffset) {
         "startsWith",
       ];
       suggestions.push(
-        ...functions
-          .map(name => ({
-            type: "functions",
-            name,
-            text: name + "(",
-            prefixTrim: /^(\w|\.)+\s*/,
-            postfixTrim: /(\w|\.)+$/,
-          }))
-          .filter(entry => entry.name.toLowerCase().startsWith(prefix)),
+        ...functions.map(name => ({
+          type: "functions",
+          name,
+          text: name + "(",
+        })),
       );
     } else if (completion.type === COMPLETION.Case) {
       const functions = ["case"];
       suggestions.push(
-        ...functions
-          .map(name => ({
-            type: "functions",
-            name,
-            text: name + "(",
-            prefixTrim: /^(\w|\.)+\s*/,
-            postfixTrim: /(\w|\.)+$/,
-          }))
-          .filter(entry => entry.name.toLowerCase().startsWith(prefix)),
+        ...functions.map(name => ({
+          type: "functions",
+          name,
+          text: name + "(",
+        })),
       );
     }
   });
