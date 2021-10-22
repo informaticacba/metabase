@@ -15,21 +15,25 @@ export const DimensionPicker = ({
 }) => {
   return (
     <ul className="px2 py1 scroll-y text-green">
-      {dimensions.map((dimension, index) => (
-        <li
-          key={index}
-          className={cx("List-item", {
-            "List-item--selected": dimension.isEqual(selectedDimension),
-          })}
-        >
-          <a
-            className="List-item-title full px2 py1 cursor-pointer"
-            onClick={() => onChangeDimension(dimension)}
+      {dimensions.map((dimension, index) => {
+        const isSelected = dimension.isEqual(selectedDimension);
+        return (
+          <li
+            key={index}
+            aria-selected={isSelected}
+            className={cx("List-item", {
+              "List-item--selected": isSelected,
+            })}
           >
-            {dimension.subDisplayName()}
-          </a>
-        </li>
-      ))}
+            <a
+              className="List-item-title full px2 py1 cursor-pointer"
+              onClick={() => onChangeDimension(dimension)}
+            >
+              {dimension.subDisplayName()}
+            </a>
+          </li>
+        );
+      })}
     </ul>
   );
 };

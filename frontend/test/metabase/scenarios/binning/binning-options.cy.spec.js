@@ -296,13 +296,13 @@ function chooseInitialBinningOptionForExplicitJoin({
 }
 
 function openPopoverFromSelectedBinningOption(column, binning) {
-  cy.get(".List-item--selected")
+  cy.get("[aria-selected='true']")
     .should("be.visible")
     .as("targetListItem")
     .should("contain", column);
 
   cy.get("@targetListItem")
-    .find(".Field-extra")
+    .find('[data-testid="dimension-list-item-binning"]')
     .as("listItemSelectedBinning")
     .should("contain", binning)
     .click();
@@ -331,6 +331,6 @@ function getAllOptions({ options, isSelected } = {}) {
         cy
           .findByText(selectedOption)
           .closest("li")
-          .should("have.class", "List-item--selected");
+          .should("have.attr", "aria-selected", "true");
     });
 }

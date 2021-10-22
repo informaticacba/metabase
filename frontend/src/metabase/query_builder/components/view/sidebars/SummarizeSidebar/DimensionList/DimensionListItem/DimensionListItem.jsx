@@ -79,7 +79,7 @@ export const DimensionListItem = ({
       <DimensionListItemContent>
         <DimensionListItemTitleContainer onClick={handleChange}>
           <DimensionListItemIcon name={getItemIcon(item)} size={18} />
-          <DimensionListItemTitle>
+          <DimensionListItemTitle data-testid="dimension-list-item-name">
             {getItemName(item, shouldIncludeTable)}
           </DimensionListItemTitle>
         </DimensionListItemTitleContainer>
@@ -90,7 +90,7 @@ export const DimensionListItem = ({
           <PopoverWithTrigger
             triggerClasses="align-self-stretch"
             triggerElement={
-              <SubDimensionButton>
+              <SubDimensionButton data-testid="dimension-list-item-binning">
                 {selectedSubDimensionName}
               </SubDimensionButton>
             }
@@ -110,7 +110,7 @@ export const DimensionListItem = ({
         )}
 
         {isSelected && (
-          <DimensionListItemRemoveButton>
+          <DimensionListItemRemoveButton aria-label="Remove dimension">
             <Icon name="close" onClick={handleRemove} />
           </DimensionListItemRemoveButton>
         )}
@@ -118,7 +118,10 @@ export const DimensionListItem = ({
 
       {!isSelected && (
         <Tooltip tooltip={t`Add grouping`}>
-          <DimensionListItemAddButton onClick={handleAdd}>
+          <DimensionListItemAddButton
+            onClick={handleAdd}
+            aria-label="Add dimension"
+          >
             <Icon name="add" size={12} />
           </DimensionListItemAddButton>
         </Tooltip>

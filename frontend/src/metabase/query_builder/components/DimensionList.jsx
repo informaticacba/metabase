@@ -189,7 +189,10 @@ export default class DimensionList extends Component {
       otherDimension.defaultDimension();
     const name = subDimension ? subDimension.subTriggerDisplayName() : null;
     return (
-      <div className="FieldList-grouping-trigger text-white-hover flex align-center p1 cursor-pointer">
+      <div
+        className="FieldList-grouping-trigger text-white-hover flex align-center p1 cursor-pointer"
+        data-testid="dimension-list-item-binning"
+      >
         {name && <h4>{name}</h4>}
         {!multiSelect && <Icon name="chevronright" className="ml1" size={16} />}
       </div>
@@ -268,21 +271,25 @@ export const DimensionPicker = ({
 }) => {
   return (
     <ul className={cx(className, "px2 py1")} style={style}>
-      {dimensions.map((d, index) => (
-        <li
-          key={index}
-          className={cx("List-item", {
-            "List-item--selected": d.isEqual(dimension),
-          })}
-        >
-          <a
-            className="List-item-title full px2 py1 cursor-pointer"
-            onClick={() => onChangeDimension(d)}
+      {dimensions.map((d, index) => {
+        const isSelected = d.isEqual(dimension);
+        return (
+          <li
+            aria-selected={isSelected}
+            key={index}
+            className={cx("List-item", {
+              "List-item--selected": isSelected,
+            })}
           >
-            {d.subDisplayName()}
-          </a>
-        </li>
-      ))}
+            <a
+              className="List-item-title full px2 py1 cursor-pointer"
+              onClick={() => onChangeDimension(d)}
+            >
+              {d.subDisplayName()}
+            </a>
+          </li>
+        );
+      })}
     </ul>
   );
 };

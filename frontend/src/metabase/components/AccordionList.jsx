@@ -550,6 +550,7 @@ const AccordionListCell = ({
     const description = renderItemDescription(item, itemIndex, isSelected);
     content = (
       <div
+        aria-selected={isSelected}
         className={cx(
           "List-item flex mx1",
           {
